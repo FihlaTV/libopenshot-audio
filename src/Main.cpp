@@ -31,38 +31,36 @@
  */
 
 #include <iostream>
-#include <unistd.h>
 #include "../JuceLibraryCode/JuceHeader.h"
-
-#if JUCE_MINGW
-#define sleep(a) Sleep(a * 1000)
-#include <windows.h>
-#endif
-
-using namespace std;
 
 //==============================================================================
 int main()
 {
 
 	// Initialize audio devices
-	cout << "Begin init" << endl;
+	std::cout << "Begin init" << std::endl;
 	AudioDeviceManager deviceManager;
-	deviceManager.initialise (	0, /* number of input channels */
-								2, /* number of output channels */
-								0, /* no XML settings.. */
-								true  /* select default device on failure */);
+	String error = deviceManager.initialise (
+		0, /* number of input channels */
+		2, /* number of output channels */
+		0, /* no XML settings.. */
+		true  /* select default device on failure */
+	);
 
-	// Play test sound
-	cout << "Playing sound now" << endl;
-	deviceManager.playTestSound();
-	for (int x = 1; x <= 5; x++) {
-		cout << "... " << x << endl;
-		sleep(1);
+	// Output error (if any)
+	if (error.isNotEmpty()) {
+		std::cout << "Error on initialise(): " << error.toStdString() << std::endl;
 	}
 
-	int id = 1;
-	cout << "before device loop" << endl;
+	// Play test sound
+	std::cout << "Playing sound now" << std::endl;
+	deviceManager.playTestSound();
+	for (int x = 1; x <= 5; x++) {
+		std::cout << "... " << x << std::endl;
+		juce::Thread::sleep(1000);
+	}
+
+	std::cout << "before device loop" << std::endl;
 	for (int i = 0; i < deviceManager.getAvailableDeviceTypes().size(); ++i)
 	{
 		const AudioIODeviceType* t = deviceManager.getAvailableDeviceTypes()[i];
@@ -74,10 +72,10 @@ int main()
 			String menuName;
 
 			menuName << deviceName << " (" << t->getTypeName() << ")";
-			cout << menuName << endl;
+			std::cout << menuName << std::endl;
 		}
 	}
-	cout << "after device loop" << endl;
+	std::cout << "after device loop" << std::endl;
 
 	// Stop audio devices
 	deviceManager.closeAudioDevice();
